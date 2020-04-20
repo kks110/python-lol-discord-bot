@@ -27,11 +27,13 @@ def get_summoner_id(summoner):
 def get_summoner_stats(summoner_id):
     summoner_data_api = "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/" + summoner_id + "/?api_key=" + RIOT_API_KEY
     summoner_data_json = requests.get(summoner_data_api).json()
-    summoner_name = summoner_data_json[0]['summonerName']
-    summoner_tier = summoner_data_json[0]['tier']
-    summoner_rank = summoner_data_json[0]['rank']
-    summoner_wins = summoner_data_json[0]['wins']
-    summoner_losses = summoner_data_json[0]['losses']
+    for queue in summoner_data_json:
+        if queue['queueType'] == 'RANKED_SOLO_5x5':
+            summoner_name = queue['summonerName']
+            summoner_tier = queue['tier']
+            summoner_rank = queue['rank']
+            summoner_wins = queue['wins']
+            summoner_losses = queue['losses']
     return {
         "summoner_name": summoner_name,
         "summoner_tier": summoner_tier,
