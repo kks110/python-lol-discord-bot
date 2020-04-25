@@ -38,8 +38,19 @@ def get_summoner_stats(summoner_id):
         "summoner_name": summoner_name,
         "summoner_tier": summoner_tier,
         "summoner_rank": summoner_rank,
-        "summoner_win_rate": str(round((summoner_wins/(summoner_wins+summoner_losses))*100)) + "%"
+        "summoner_win_rate": str(round((summoner_wins/(summoner_wins+summoner_losses))*100)) + "%",
+        "games_played": str(summoner_losses + summoner_wins)
     }
+
+def string_builder(summoner_details):
+    formatted_details = []
+    for summoner in summoner_details:
+        formatted_details.append("Name: " + summoner["summoner_name"] +
+                                 "  |  Rank " + summoner["summoner_tier"] +
+                                 " " + summoner["summoner_rank"] +
+                                 "  |  Win rate " + summoner["summoner_win_rate"] +
+                                 " (Games played: " + summoner["games_played"] + ")")
+    return "\n".join(formatted_details)
 
 def get_summoners():
     with open("summoners.txt") as f:
@@ -67,6 +78,6 @@ async def ranks(ctx):
         summoner_stats = get_summoner_stats(summoner_id)
         all_summoner_details.append(summoner_stats)
 
-    await ctx.send(all_summoner_details)
+    await ctx.send(string_builder(all_summoner_details))
 
 bot.run(TOKEN)
