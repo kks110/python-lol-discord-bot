@@ -1,83 +1,34 @@
 import os
 from dotenv import load_dotenv
 from discord.ext import commands
-import requests
+from lib import api_calls, builders, summoner_details
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-RIOT_API_KEY = os.getenv('RIOT_API_KEY')
 
 bot = commands.Bot(command_prefix='!lol-test ')
 
-def player_already_registered(summoner_name):
-    f = open("summoners.txt", "r")
-    registered_summoners = f.readlines()
-    for summoner in registered_summoners:
-        if summoner.rstrip() == summoner_name:
-            print("Player already exists")
-            return True
-    print("Player doesnt exist")
-    return False
-
-def get_summoner_id(summoner):
-    summoner_account_api = "https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + summoner + "/?api_key=" + RIOT_API_KEY
-    summoner_account_json = requests.get(summoner_account_api).json()
-    return summoner_account_json['id']
-
-def get_summoner_stats(summoner_id):
-    summoner_data_api = "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/" + summoner_id + "/?api_key=" + RIOT_API_KEY
-    summoner_data_json = requests.get(summoner_data_api).json()
-    for queue in summoner_data_json:
-        if queue['queueType'] == 'RANKED_SOLO_5x5':
-            summoner_name = queue['summonerName']
-            summoner_tier = queue['tier']
-            summoner_rank = queue['rank']
-            summoner_wins = queue['wins']
-            summoner_losses = queue['losses']
-    return {
-        "summoner_name": summoner_name,
-        "summoner_tier": summoner_tier,
-        "summoner_rank": summoner_rank,
-        "summoner_win_rate": str(round((summoner_wins/(summoner_wins+summoner_losses))*100)) + "%",
-        "games_played": str(summoner_losses + summoner_wins)
-    }
-
-def string_builder(summoner_details):
-    formatted_details = []
-    for summoner in summoner_details:
-        formatted_details.append("Name: " + summoner["summoner_name"] +
-                                 "  |  Rank " + summoner["summoner_tier"] +
-                                 " " + summoner["summoner_rank"] +
-                                 "  |  Win rate " + summoner["summoner_win_rate"] +
-                                 " (Games played: " + summoner["games_played"] + ")")
-    return "\n".join(formatted_details)
-
-def get_summoners():
-    with open("summoners.txt") as f:
-        summoners = f.read().splitlines()
-    return summoners
 
 @bot.event
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
 
+
 @bot.command(name='register', help='Register your league name.')
 async def register(ctx, summoner_name):
-    if not player_already_registered(summoner_name):
-        f = open("summoners.txt", "a")
-        f.write(summoner_name + "\n")
+    summoner_details.register(summoner_name)
 
     await ctx.send("Registered " + summoner_name)
+
 
 @bot.command(name='ranks', help='Returns registered users ranks.')
 async def ranks(ctx):
     all_summoner_details = []
-    summoners = get_summoners()
+    summoners = summoner_details.get_summoners()
     for summoner in summoners:
-        summoner_id = get_summoner_id(summoner)
-        summoner_stats = get_summoner_stats(summoner_id)
+        summoner_stats = builders.summoner_stats_builder(summoner)
         all_summoner_details.append(summoner_stats)
 
-    await ctx.send(string_builder(all_summoner_details))
+    await ctx.send(builders.string_builder(all_summoner_details))
 
 bot.run(TOKEN)
