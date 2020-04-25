@@ -6,7 +6,7 @@ from lib import summonerstatsbuilder, register
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
-bot = commands.Bot(command_prefix='!lol-test ')
+bot = commands.Bot(command_prefix='!lol-bot ')
 
 summoner_stats_builder = summonerstatsbuilder.SummonerStatsBuilder()
 summoner_register = register.Register()
