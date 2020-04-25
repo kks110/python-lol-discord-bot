@@ -1,12 +1,15 @@
 import os
 from dotenv import load_dotenv
 from discord.ext import commands
-from lib import api_calls, builders, summoner_details
+from lib import summonerstatsbuilder, register
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 bot = commands.Bot(command_prefix='!lol-test ')
+
+summoner_stats_builder = summonerstatsbuilder.SummonerStatsBuilder()
+summoner_register = register.Register()
 
 
 @bot.event
@@ -16,7 +19,7 @@ async def on_ready():
 
 @bot.command(name='register', help='Register your league name.')
 async def register(ctx, summoner_name):
-    summoner_details.register(summoner_name)
+    summoner_register.register(summoner_name)
 
     await ctx.send("Registered " + summoner_name)
 
@@ -24,11 +27,10 @@ async def register(ctx, summoner_name):
 @bot.command(name='ranks', help='Returns registered users ranks.')
 async def ranks(ctx):
     all_summoner_details = []
-    summoners = summoner_details.get_summoners()
+    summoners = summoner_register.get_summoners()
     for summoner in summoners:
-        summoner_stats = builders.summoner_stats_builder(summoner)
-        all_summoner_details.append(summoner_stats)
+        all_summoner_details.append(summoner_stats_builder.build_for(summoner))
 
-    await ctx.send(builders.string_builder(all_summoner_details))
+    await ctx.send("\n".join(all_summoner_details))
 
 bot.run(TOKEN)
