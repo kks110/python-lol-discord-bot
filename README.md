@@ -4,6 +4,7 @@ Requires `requests` and `dotevn` to be installed:
 ```bash
 pip install -U requests
 pip install -U python-dotenv
+pip install -U discord.py
 ```
 
 You need to make a copy of the `.env.exampe` file, and call it `.env`.

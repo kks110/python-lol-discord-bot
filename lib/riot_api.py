@@ -6,7 +6,7 @@ import requests
 class RiotApi:
     def __init__(self):
         load_dotenv()
-        self.RIOT_API_KEY = os.getenv('RIOT_API_KEY')
+        self.RIOT_API_KEY = os.getenv("RIOT_API_KEY")
 
 
     def get_summoner_stats(self, summoner):
@@ -14,8 +14,13 @@ class RiotApi:
         summoner_data_api = "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/" + summoner_id + "/?api_key=" + self.RIOT_API_KEY
         return requests.get(summoner_data_api).json()
 
+    def get_league_version(self):
+        league_version = "https://ddragon.leagueoflegends.com/api/versions.json"
+        version_number = requests.get(league_version).json()[0]
+        return version_number.split(".")
+
 
     def __get_summoner_id(self, summoner):
         summoner_account_api = "https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + summoner + "/?api_key=" + self.RIOT_API_KEY
         summoner_account_json = requests.get(summoner_account_api).json()
-        return summoner_account_json['id']
+        return summoner_account_json["id"]

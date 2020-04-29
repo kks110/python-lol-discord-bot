@@ -9,13 +9,13 @@ class SummonerStatsBuilder:
     def build_for(self, summoner):
         summoner_data_json = self.riot_api.get_summoner_stats(summoner)
         for queue in summoner_data_json:
-            if queue['queueType'] == 'RANKED_SOLO_5x5':
+            if queue["queueType"] == "RANKED_SOLO_5x5":
                 return self.__string_builder(
-                    summoner_name = queue['summonerName'],
-                    summoner_tier = queue['tier'],
-                    summoner_rank = queue['rank'],
-                    summoner_winrate = str(round((queue['wins']/(queue['wins']+queue['losses']))*100)) + "%",
-                    games_played = str(queue['losses'] + queue['wins'])
+                    summoner_name = queue["summonerName"],
+                    summoner_tier = queue["tier"],
+                    summoner_rank = queue["rank"],
+                    summoner_winrate = str(round((queue["wins"]/(queue["wins"]+queue["losses"]))*100)) + "%",
+                    games_played = str(queue["losses"] + queue["wins"])
                 )
 
 
